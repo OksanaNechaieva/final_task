@@ -9,7 +9,6 @@ import logging
 # url for test purpose
 # https://timesofindia.indiatimes.com/rssfeedstopstories.cms
 
-
 logger = logging.getLogger('RSS_Logger')
 logging.basicConfig(level=logging.INFO)
 
@@ -23,7 +22,8 @@ parser.add_argument('--verbose', '-ver', action="store_true", help='Outputs verb
 parser.add_argument('--limit', type=int, help='Limit news topics if this parameter provided')
 # identify how many news should be in output
 parser.add_argument('source', nargs='?', help='RSS URL')
-#print(parser)
+# url for parsing
+
 
 args = ()
 try:
@@ -37,18 +37,19 @@ except Exception as error:
 
 class Channel:
     """"class to represent content of the xml file for news"""
-    items = []
+
     def __init__(self, title, link, image, limit):
         self.title = title
         self.link = link
         self.image = image
         self.limit = limit
+        self.items = []
 
     def __str__(self):
         """override the str method for channel objects"""
-        result = "Title: " + channel.title + "\n" + \
-                 str(image) + "\n" + \
-                 "Link: " + channel.link + "\n"
+        result = "Title: " + self.title + "\n" + \
+                 str(self.image) + "\n" + \
+                 "Link: " + self.link + "\n"
         i = 0
         logger.info(' Display news with limitation: ' + str(args.limit) + '\n')
 
@@ -73,7 +74,7 @@ class Image:
 
     def __str__(self):
         """override the str method for image objects"""
-        result = "Image info: " + image.title + ", " + image.link + ", " + image.url + "\n"
+        result = "Image info: " + self.title + ", " + self.link + ", " + self.url + "\n"
         return result
 
 
@@ -90,33 +91,40 @@ class Item:
 if not args.verbose:
     logger.disabled = True
 
-xml_text = requests.get(sys.argv[1]).text
-my_ordered_dict = xmltodict.parse(xml_text)
-image = Image(my_ordered_dict['rss']['channel']['image']['title'], my_ordered_dict['rss']['channel']['image']['link'],
-              my_ordered_dict['rss']['channel']['image']['url'])
-channel = Channel(my_ordered_dict['rss']['channel']['title'], my_ordered_dict['rss']['channel']['link'], image,
-                args.limit)
 
-logger.info(' Insert info into channel object ' + '\n')
+def run(url):
+    xml_text = requests.get(url).text
+    my_ordered_dict = xmltodict.parse(xml_text)
+    image = Image(my_ordered_dict['rss']['channel']['image']['title'],
+                  my_ordered_dict['rss']['channel']['image']['link'],
+                  my_ordered_dict['rss']['channel']['image']['url'])
+    channel = Channel(my_ordered_dict['rss']['channel']['title'], my_ordered_dict['rss']['channel']['link'], image,
+                      args.limit)
 
-for item in my_ordered_dict['rss']['channel']['item']:
-    channel.items.append(Item(item['title'], item['description'], item['link'], item['pubDate']))
-logger.info(' Insert info into item object for news info ' + '\n')
+    logger.info(' Insert info into channel object ' + '\n')
 
-if args.json == True and args.limit != None:
-    logger.info(' json flag enabled with limit news = ' + str(args.limit) + '\n')
-    # printing as a json string with output limitations with indentation level = 2
-    NewsFeed = feedparser.parse(sys.argv[1])
-    for news in range(0, args.limit):
-        print(json.dumps(NewsFeed.entries[news], indent=2))
+    text = ""
 
-elif args.json == True and args.limit == None:
-    logger.info(' json flag enabled without limitation \n')
-    # printing as a json string without output limitations with indentation level = 2
-    json_data = json.dumps(my_ordered_dict, indent=2)
-    print("JSON data is:")
-    print(json_data)
+    for item in my_ordered_dict['rss']['channel']['item']:
+        channel.items.append(Item(item['title'], item['description'], item['link'], item['pubDate']))
+    logger.info(' Insert info into item object for news info ' + '\n')
 
-elif not args.json:
-    # print all information from the channel object
-    print(channel)
+    if args.json == True and args.limit != None:
+        logger.info(' json flag enabled with limit news = ' + str(args.limit) + '\n')
+        # printing as a json string with output limitations with indentation level = 2
+        NewsFeed = feedparser.parse(url)
+        for news in range(0, args.limit):
+            text += json.dumps(NewsFeed.entries[news], indent=2)
+
+    elif args.json == True and args.limit == None:
+        logger.info(' json flag enabled without limitation \n')
+        # printing as a json string without output limitations with indentation level = 2
+        json_data = json.dumps(my_ordered_dict, indent=2)
+        print("JSON data is:")
+        text += json_data
+
+    elif not args.json:
+        # print all information from the channel object
+        text += str(channel)
+
+    return text
