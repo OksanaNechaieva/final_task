@@ -1,6 +1,5 @@
 import argparse
 import xmltodict
-import sys
 import requests
 import json
 import feedparser
