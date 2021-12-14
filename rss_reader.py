@@ -13,7 +13,7 @@ logger = logging.getLogger('RSS_Logger')
 logging.basicConfig(level=logging.INFO)
 
 parser = argparse.ArgumentParser(description='RSS reader', exit_on_error=False)
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+parser.add_argument('--version', action='version', version='%(prog)s 2.0')
 # send version uprade with each itteration
 parser.add_argument('--json', default=False, action="store_true", help='Print result as JSON in stdout')
 # print output info in json format
