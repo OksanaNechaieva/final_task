@@ -8,7 +8,7 @@
 Different flags could be specified, use `--help` to see full usage.
 
 ###Another run option
-####2. In case to use like distribution package use follow commands:
+####2. In case to use like distribution package use following commands:
    
     python setup.py bdist_msi  
 
@@ -17,3 +17,8 @@ and
     pip install -e .
 
 Now you can run rss reader with `rss_reader <url>`. All previous flags can be used.
+
+
+
+
+
