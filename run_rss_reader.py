@@ -21,9 +21,9 @@ def result():
             print(rss_result)
 
     elif args.date is None:
-        xml_text = requests.get(sys.argv[1]).text
-        # f=open('xml_cache.xml', "w")
-        # f.write(xml_text)
+        xml_text = requests.get(sys.argv[1]).text.encode('latin-1', 'ignore').decode()
+        f = open('xml_cache.xml', "w")
+        f.write(xml_text)
         rss_result = rss.run(xml_text)
         print(rss_result)
 
