@@ -21,7 +21,7 @@ parser.add_argument('--verbose', action="store_true", help='Outputs verbose stat
 # logging
 parser.add_argument('--limit', type=int, help='Limit news topics if this parameter provided')
 # identify how many news should be in output
-parser.add_argument('--to_html', type=pathlib.Path,  help='Creates new HTML file for output data')
+parser.add_argument('--to_html', type=pathlib.Path, help='Creates new HTML file for output data')
 # creating new html file
 parser.add_argument('--to_pdf', type=pathlib.Path, help='Creates new PDF file for output data')
 # creating new pdf file
@@ -122,12 +122,8 @@ if not args.verbose:
 
 
 def run(xml_text):
-    # xml_text = requests.get(url).text
-    # f = open('xml_cache.xml', "w")
-    # f.write(xml_text)
-    # my_ordered_dict=[]
+
     my_ordered_dict = xmltodict.parse(xml_text)
-    # print(my_ordered_dict)
 
     image = Image(my_ordered_dict['rss']['channel']['image']['title'],
                   my_ordered_dict['rss']['channel']['image']['link'],
@@ -148,7 +144,6 @@ def run(xml_text):
         for item in my_ordered_dict['rss']['channel']['item']:
             temp = (parse(item['pubDate'], ignoretz=True)).date()
             pubdate = str(temp).split('-')
-            # print(pubdate)
             result = ''
             for i in pubdate:
                 result += str(i)
@@ -185,7 +180,7 @@ def run(xml_text):
         pdf.set_font("Arial", size=24)
         pdf.cell(200, 10, txt=channel.title, ln=1, align='C')
         pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt=channel.link, ln=1, align='C')
+        pdf.cell(200, 10, txt=channel.link, ln=4, align='C')
         pdf.image('image_name.png', x=60, y=30, w=100, h=40, type='', link='')
         pdf.cell(200, 30, txt=' ', ln=1, align='L')
 
@@ -195,18 +190,18 @@ def run(xml_text):
 
                 pdf.cell(200, 10, txt=' ', ln=1, align='L')
                 pdf.cell(200, 10, txt='News #' + str(i + 1), ln=1, align='L')
-                pdf.cell(200, 10, txt='Title: ' + item.title.encode('latin-1', 'ignore').decode(), ln=1, align='L')
-                pdf.cell(200, 10, txt=item.title.encode('latin-1', 'ignore').decode(), ln=1, align='L')
+                pdf.cell(200, 10, txt='Title: ' + item.title, ln=1, align='L')
+                pdf.cell(200, 10, txt=item.title, ln=1, align='L')
                 pdf.set_text_color(0, 150, 255)
-                pdf.cell(100, 10, txt='Link:' + item.link.encode('latin-1', 'ignore').decode(), ln=1, align='L')
+                pdf.cell(100, 10, txt='Link:' + item.link, ln=2, align='L')
                 pdf.set_text_color(0, 0, 0)
                 if item.description is None:
                     pdf.cell(200, 10, txt='Description: ' + 'None', ln=1,
                              align='L')
                 else:
-                    pdf.cell(200, 10, txt='Description: ' + item.description.encode('latin-1', 'ignore').decode(),
-                             ln=1, align='L')
-                pdf.cell(200, 10, txt='Published:  ' + item.pubDate.encode('latin-1', 'ignore').decode(), ln=1,
+                    pdf.cell(200, 10, txt='Description: ' + item.description,
+                             ln=10, align='L')
+                pdf.cell(200, 10, txt='Published:  ' + item.pubDate, ln=1,
                          align='L')
                 i += 1
             else:
@@ -249,5 +244,10 @@ def run(xml_text):
         # close the file
         f.close()
         text = 'New HTML file with output data is created'
+
+
+    # f = open('tests/channel_in_json_limit3.txt', "w")
+    # f.write(text)
+    # f.close()
 
     return text
